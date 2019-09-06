@@ -37,17 +37,32 @@ Suggested milestones for incremental development:
  -Build the [year, 'name rank', ... ] list and print it
  -Fix main() to use the extract_names list
 """
-
+# Forgot to make dev branch comment
 
 def extract_names(filename):
-    """
-    Given a file name for baby.html, returns a list starting with the year string
-    followed by the name-rank strings in alphabetical order.
-    ['2006', 'Aaliyah 91', Aaron 57', 'Abagail 895', ' ...]
-    """
-    # +++your code here+++
-    return
+    names = []
 
+    f = open(filename, 'r')
+    data = f.read()
+
+    year_match = re.search(r'Popularity\sin\s(\d\d\d\d)', data)
+    year = year_match.group(1)
+    names.append(year)
+
+    names_ranks = re.findall(r'<td>(\d+)</td><td>(\w+)</td><td>(\w+)</td>', data)
+
+    name_dict = {}
+    for each in names_ranks:
+        (rank, boy, girl) = each
+        if boy not in name_dict:
+            name_dict[boy] = rank
+        if girl not in name_dict:
+            name_dict[girl] = rank
+    alpha_names = sorted(name_dict.keys())
+    for name in alpha_names:
+        names.append(name + ' ' +   name_dict[name])
+
+    return names
 
 def create_parser():
     """Create a cmd line parser object with 2 argument definitions"""
@@ -64,19 +79,19 @@ def main():
     parser = create_parser()
     args = parser.parse_args()
 
+
     if not args:
         parser.print_usage()
         sys.exit(1)
 
     file_list = args.files
 
-    # option flag
-    create_summary = args.summaryfile
-
-    # +++your code here+++
-    # For each filename, get the names, then either print the text output
-    # or write it to a summary file
-
+    for filename in file_list:
+        names = extract_names(filename)
+        text = '\n'.join(names)
+        output = open(filename + '.summary', 'w')
+        output.write(text + '\n')
+        output.close()
 
 if __name__ == '__main__':
     main()
